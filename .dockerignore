@@ -1,0 +1,11 @@
+# Allowlist: only what the app needs at runtime (keeps .git, docs/ and the GitHub Pages site out of the image)
+*
+!pyproject.toml
+!uv.lock
+!Homepage.py
+!pages/
+!models/
+!features/
+!Logo.png
+!schema.png
+!Flowchart.png

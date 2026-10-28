@@ -24,16 +24,16 @@ from rdkit.Chem import Descriptors as Descriptors
 import os
 from rdkit import Chem
 from rdkit import RDPaths
-from rdkit.Chem.Draw import IPythonConsole
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import rdMolDraw2D
 from rdkit.Chem.Draw import MolDraw2DSVG
 from rdkit.Chem import AddHs
 from rdkit.Chem import inchi
-from IPython.display import display
 from rdkit.Chem.MolStandardize import rdMolStandardize
-from rdkit.Chem.MolStandardize import Standardizer
-from rdkit.Chem import MolStandardize
+# RDKit removed its Python port of MolVS (rdkit.Chem.MolStandardize.Standardizer / .tautomer);
+# the molvs package provides the same classes
+from molvs import Standardizer
+import molvs as MolStandardize
 from collections import Counter
 
 from sklearn.decomposition import PCA
@@ -44,9 +44,9 @@ from rdkit.Chem import inchi
 from rdkit import Chem
 
 import shap
-shap.initjs()
 
-from dimorphite_dl.dimorphite_dl import DimorphiteDL
+# dimorphite-dl 1.3.2 is no longer on PyPI; 2.x offers the same protonation as a function
+from dimorphite_dl import protonate_smiles as dimorphite_protonate_smiles
 
 def standardized_smiles(smiles):
     standardizer = Standardizer()
@@ -123,8 +123,7 @@ def standardized_smiles(smiles):
 
 def protonate_smiles(smiles):
 
-    dimorphite = DimorphiteDL(min_ph=7.0, max_ph=7.0, pka_precision=0)
-    protonated_smiles = dimorphite.protonate(smiles)
+    protonated_smiles = dimorphite_protonate_smiles(smiles, ph_min=7.0, ph_max=7.0, precision=0)
 
     #print("protonated_smiles")
 
@@ -334,7 +333,10 @@ def predict_DILI(data):#log human_VDss_L_kg model
     
     explainer = shap.TreeExplainer(loaded_rf)
     shap_values = explainer.shap_values(X)
-    
+    if not isinstance(shap_values, list):
+        # shap >= 0.45 returns one (samples, features, classes) array instead of a list per class
+        shap_values = [shap_values[..., i] for i in range(shap_values.shape[-1])]
+
 
     shap.force_plot(explainer.expected_value[1], 
     shap_values[1], X.iloc[0],
