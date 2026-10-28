@@ -24,7 +24,6 @@ from rdkit.Chem import Descriptors as Descriptors
 import os
 from rdkit import Chem
 from rdkit import RDPaths
-from rdkit.Chem.Draw import IPythonConsole
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import rdMolDraw2D
 from rdkit.Chem.Draw import MolDraw2DSVG
@@ -37,7 +36,6 @@ from rdkit.Chem import inchi
 from rdkit import Chem
 
 import shap
-shap.initjs()
 
 def standardized_smiles(value):
     #print(value)
@@ -228,7 +226,10 @@ def predict_DILI(data):#log human_VDss_L_kg model
     
     explainer = shap.TreeExplainer(loaded_rf)
     shap_values = explainer.shap_values(X)
-    
+    if not isinstance(shap_values, list):
+        # shap >= 0.45 returns one (samples, features, classes) array instead of a list per class
+        shap_values = [shap_values[..., i] for i in range(shap_values.shape[-1])]
+
 
     shap.force_plot(explainer.expected_value[1], 
     shap_values[1], X.iloc[0],

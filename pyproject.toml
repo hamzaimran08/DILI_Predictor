@@ -1,0 +1,33 @@
+[project]
+name = "dili-predictor"
+version = "2.1.0"
+description = "Streamlit app predicting human drug-induced liver injury (DILI)"
+requires-python = ">=3.12,<3.13"
+license = "Apache-2.0"
+dependencies = [
+    "matplotlib>=3.10",
+    "molvs>=0.1.1",
+    # maintained fork of mordred (same `mordred` import); the original is unmaintained and breaks on numpy 2
+    "mordredcommunity>=2.0.7",
+    "numpy>=2.3",
+    "pandas>=2.3",
+    "rdkit>=2025.9",
+    # models are converted to the >=1.4 tree format by scripts/convert_models.py
+    "scikit-learn>=1.8",
+    "seaborn>=0.13.2",
+    "shap>=0.50",
+    "streamlit>=1.66",
+]
+
+[tool.uv]
+package = false
+# Security floors for transitive dependencies (CRITICAL/HIGH CVEs in the previous image)
+constraint-dependencies = [
+    "certifi>=2026.10.19",
+    "gitpython>=3.2.1",
+    "pillow>=13.0.0",
+    "protobuf>=6.33.5",
+    "pyarrow>=23.0.1",
+    "tornado>=6.5.9",
+    "urllib3>=2.8.0",
+]
